@@ -124,21 +124,39 @@ class TerobosMonitorScreen extends StatelessWidget {
                 mainAxisSpacing: 16.0,
                 crossAxisSpacing: 16.0,
                 children: [
-                  const SuhuCard(), // <-- ganti panggilan _buildSensorCard untuk Suhu dengan widget yang realtime
-                  _buildSensorCard(
-                    'Cahaya',
-                    Icons.wb_sunny,
-                    const Color(0xFFF0AD4E),
+                  // Menampilkan suhu dari path cuaca/suhu
+                  const RealtimeSensorCard(
+                    path: 'cuaca/suhu',
+                    title: 'Suhu',
+                    icon: Icons.thermostat,
+                    unit: '°C',
+                    color: Color(0xFFD9534F),
                   ),
-                  _buildSensorCard(
-                    'Hujan',
-                    Icons.water_drop,
-                    const Color(0xFF5BC0DE),
+
+                  // Untuk indikator yang memiliki dua mode (digital & analog),
+                  // kita ambil versi analog sesuai permintaan: ldr_analog, hujan_analog
+                  const RealtimeSensorCard(
+                    path: 'cuaca/ldr_analog',
+                    title: 'Cahaya',
+                    icon: Icons.wb_sunny,
+                    unit: '',
+                    color: Color(0xFFF0AD4E),
                   ),
-                  _buildSensorCard(
-                    'Kelembapan',
-                    Icons.opacity,
-                    const Color(0xFF5CB85C),
+
+                  const RealtimeSensorCard(
+                    path: 'cuaca/hujan_analog',
+                    title: 'Hujan',
+                    icon: Icons.water_drop,
+                    unit: '',
+                    color: Color(0xFF5BC0DE),
+                  ),
+
+                  const RealtimeSensorCard(
+                    path: 'cuaca/kelembaban',
+                    title: 'Kelembapan',
+                    icon: Icons.opacity,
+                    unit: '%',
+                    color: Color(0xFF5CB85C),
                   ),
                 ],
               ),
@@ -162,40 +180,32 @@ class TerobosMonitorScreen extends StatelessWidget {
     // 5. Floating Action Button di tengah
   }
 
-  // Fungsi bantuan untuk membuat Card (agar kode tidak berulang)
-  Widget _buildSensorCard(String title, IconData icon, Color color) {
-    return Card(
-      color: color,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Pusatkan konten
-        children: [
-          Icon(icon, size: 40.0, color: Colors.white),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // (Dihapus) fungsi pembantu statis digantikan oleh RealtimeSensorCard
 }
 
-// Widget baru: card Suhu yang membaca realtime dari Realtime Database
-class SuhuCard extends StatelessWidget {
-  const SuhuCard({super.key});
+// Generic realtime sensor card that reads a single path from Realtime Database.
+class RealtimeSensorCard extends StatelessWidget {
+  final String path;
+  final String title;
+  final IconData icon;
+  final String unit;
+  final Color color;
+
+  const RealtimeSensorCard({
+    super.key,
+    required this.path,
+    required this.title,
+    required this.icon,
+    this.unit = '',
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final DatabaseReference suhuRef = FirebaseDatabase.instance.ref('cuaca/suhu');
+    final DatabaseReference ref = FirebaseDatabase.instance.ref(path);
 
     return StreamBuilder<DatabaseEvent>(
-      stream: suhuRef.onValue,
+      stream: ref.onValue,
       builder: (context, snapshot) {
         String display = '—';
         if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
@@ -205,16 +215,16 @@ class SuhuCard extends StatelessWidget {
         }
 
         return Card(
-          color: const Color(0xFFD9534F),
+          color: color,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.thermostat, size: 40.0, color: Colors.white),
+              Icon(icon, size: 40.0, color: Colors.white),
               const SizedBox(height: 8),
-              const Text(
-                'Suhu',
-                style: TextStyle(
+              Text(
+                title,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -222,7 +232,7 @@ class SuhuCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                '$display °C',
+                unit.isNotEmpty ? '$display $unit' : display,
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),
             ],
