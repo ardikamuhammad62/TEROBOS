@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "654981212155",
+    "firebase_url": "https://terobos3-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "terobos3",
+    "storage_bucket": "terobos3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654981212155:android:5400527239e67076544d5e",
+        "android_client_info": {
+          "package_name": "com.example.terobos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZuYKmUYeSrxM2LItvr6x3Lhx8dXTqLCM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
