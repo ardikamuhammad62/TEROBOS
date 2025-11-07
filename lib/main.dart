@@ -16,7 +16,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Menggunakan const agar lebih efisien
 
     const Color mainBackgroundColor = Color(0xFF1E1E1E);
     
@@ -39,10 +38,9 @@ class TerobosMonitorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-          // 2. Bungkus child (ListView) dengan Container
-          //    atau bisa juga pakai SizedBox(width: drawerWidth, child: ...)
+          
           child: SizedBox(
-            // 3. Atur lebarnya di sini
+            
             width: drawerWidth,
             
             child: ListView(
@@ -133,23 +131,30 @@ class TerobosMonitorScreen extends StatelessWidget {
                     color: Color(0xFFD9534F),
                   ),
 
-                  // Untuk indikator yang memiliki dua mode (digital & analog),
-                  // kita ambil versi analog sesuai permintaan: ldr_analog, hujan_analog
-                  const RealtimeSensorCard(
-                    path: 'cuaca/ldr_analog',
-                    title: 'Cahaya',
-                    icon: Icons.wb_sunny,
-                    unit: '',
-                    color: Color(0xFFF0AD4E),
-                  ),
-
-                  const RealtimeSensorCard(
-                    path: 'cuaca/hujan_analog',
-                    title: 'Hujan',
-                    icon: Icons.water_drop,
-                    unit: '',
-                    color: Color(0xFF5BC0DE),
-                  ),
+                       // Cahaya: membaca path digital (0/1) atau analog (threshold)
+                       const BinarySensorCard(
+                         title: 'Cahaya',
+                         dbPath: 'cuaca/ldr_analog',
+                         trueLabel: 'Terang',
+                         falseLabel: 'Redup',
+                         trueIcon: Icons.wb_sunny,
+                         falseIcon: Icons.nights_stay,
+                         trueColor: Color(0xFFF0AD4E),
+                         falseColor: Color(0xFF6C5B7B),
+                         // Jika Anda hanya punya ldr_analog, ganti dbPath ke 'cuaca/ldr_analog'
+                       ),
+                       
+                       // Hujan: membaca 0/1
+                       const BinarySensorCard(
+                         title: 'Hujan',
+                         dbPath: 'cuaca/hujan_analog',
+                         trueLabel: 'Hujan',
+                         falseLabel: 'Tidak Hujan',
+                         trueIcon: Icons.umbrella,
+                         falseIcon: Icons.wb_cloudy,
+                         trueColor: Color(0xFF5BC0DE),
+                         falseColor: Color(0xFFB0BEC5),
+                       ),
 
                   const RealtimeSensorCard(
                     path: 'cuaca/kelembaban',
@@ -286,3 +291,95 @@ class CuacaPanel extends StatelessWidget {
     );
   }
 }
+
+  // Widget untuk sensor dengan dua state (0/1) atau analog dengan threshold
+  class BinarySensorCard extends StatelessWidget {
+    final String title;
+    final String dbPath; // contoh: 'cuaca/hujan_digital' atau 'cuaca/ldr_analog'
+    final String trueLabel;
+    final String falseLabel;
+    final IconData trueIcon;
+    final IconData falseIcon;
+    final Color trueColor;
+    final Color falseColor;
+    final double analogThreshold; // jika path mengeluarkan nilai analog, >= threshold => true
+
+    const BinarySensorCard({
+      super.key,
+      required this.title,
+      required this.dbPath,
+      required this.trueLabel,
+      required this.falseLabel,
+      required this.trueIcon,
+      required this.falseIcon,
+      required this.trueColor,
+      required this.falseColor,
+      this.analogThreshold = 1.0,
+    });
+
+    @override
+    Widget build(BuildContext context) {
+      final DatabaseReference ref = FirebaseDatabase.instance.ref(dbPath);
+
+      return StreamBuilder<DatabaseEvent>(
+        stream: ref.onValue,
+        builder: (context, snapshot) {
+          // Default state unknown
+          bool? state;
+          if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+            final v = snapshot.data!.snapshot.value;
+
+            // Jika value adalah int 0/1
+            if (v is int) {
+              state = (v == 1);
+            } else if (v is String) {
+              // coba parse sebagai int dulu
+              final i = int.tryParse(v);
+              if (i != null) {
+                state = (i == 1);
+              } else {
+                // coba parse sebagai double (analog)
+                final d = double.tryParse(v);
+                if (d != null) state = d >= analogThreshold;
+              }
+            } else if (v is double) {
+              state = (v >= analogThreshold);
+            } else if (v is num) {
+              state = (v.toDouble() >= analogThreshold);
+            }
+          }
+
+          // determine display
+          final bool isTrue = state == true;
+          final displayLabel = state == null ? '—' : (isTrue ? trueLabel : falseLabel);
+          final displayIcon = isTrue ? trueIcon : falseIcon;
+          final displayColor = isTrue ? trueColor : falseColor;
+
+          return Card(
+            color: displayColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(displayIcon, size: 40.0, color: Colors.white),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  displayLabel,
+                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+  }
