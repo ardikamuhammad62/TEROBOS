@@ -232,3 +232,47 @@ class SuhuCard extends StatelessWidget {
     );
   }
 }
+
+class CuacaPanel extends StatelessWidget {
+  const CuacaPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final DatabaseReference cuacaRef = FirebaseDatabase.instance.ref('cuaca');
+
+    return StreamBuilder<DatabaseEvent>(
+      stream: cuacaRef.onValue,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error membaca data'));
+        }
+        if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+          return const Center(child: Text('Tidak ada data'));
+        }
+
+        final raw = snapshot.data!.snapshot.value;
+        // Pastikan konversi aman ke Map<String, dynamic>
+        final Map<String, dynamic> data = (raw is Map) ? Map<String, dynamic>.from(raw) : {};
+
+        final suhu = data['suhu']?.toString() ?? '—';
+        final kelembaban = data['kelembaban']?.toString() ?? '—';
+        final hujanAnalog = data['hujan_analog']?.toString() ?? '—';
+        final hujanDigital = data['hujan_digital']?.toString() ?? '—';
+        final ldrAnalog = data['ldr_analog']?.toString() ?? '—';
+        final ldrDigital = data['ldr_digital']?.toString() ?? '—';
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Suhu: $suhu °C', style: Theme.of(context).textTheme.titleLarge),
+            Text('Kelembaban: $kelembaban %'),
+            Text('Hujan (analog): $hujanAnalog'),
+            Text('Hujan (digital): $hujanDigital'),
+            Text('LDR (analog): $ldrAnalog'),
+            Text('LDR (digital): $ldrDigital'),
+          ],
+        );
+      },
+    );
+  }
+}
