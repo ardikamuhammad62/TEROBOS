@@ -122,43 +122,46 @@ class TerobosMonitorScreen extends StatelessWidget {
                 mainAxisSpacing: 16.0,
                 crossAxisSpacing: 16.0,
                 children: [
-                  // Menampilkan suhu dari path cuaca/suhu
+                  // Menampilkan suhu dari path sensor/suhu
                   const RealtimeSensorCard(
-                    path: 'cuaca/suhu',
+                    path: 'sensor/suhu',
                     title: 'Suhu',
                     icon: Icons.thermostat,
                     unit: '°C',
                     color: Color(0xFFD9534F),
                   ),
 
-                       // Cahaya: membaca path digital (0/1) atau analog (threshold)
-                       const BinarySensorCard(
-                         title: 'Cahaya',
-                         dbPath: 'cuaca/ldr_analog',
-                         trueLabel: 'Terang',
-                         falseLabel: 'Redup',
-                         trueIcon: Icons.wb_sunny,
-                         falseIcon: Icons.nights_stay,
-                         trueColor: Color(0xFFF0AD4E),
-                         falseColor: Color(0xFF6C5B7B),
-                         // Jika Anda hanya punya ldr_analog, ganti dbPath ke 'cuaca/ldr_analog'
-                       ),
+                  // Cahaya: membaca status string
+                  const BinarySensorCard(
+                    title: 'Cahaya',
+                    dbPath: 'sensor/statusCahaya',
+                    trueLabel: 'Terang',
+                    falseLabel: 'Redup',
+                    trueIcon: Icons.wb_sunny,
+                    falseIcon: Icons.nights_stay,
+                    trueColor: Color(0xFFF0AD4E),
+                    falseColor: Color(0xFF6C5B7B),
+                    isStringComparison: true,  // tambahkan parameter ini
+                    stringTrueValue: "Terang", // tambahkan parameter ini
+                  ),
                        
-                       // Hujan: membaca 0/1
-                       const BinarySensorCard(
-                         title: 'Hujan',
-                         dbPath: 'cuaca/hujan_analog',
-                         trueLabel: 'Hujan',
-                         falseLabel: 'Tidak Hujan',
-                         trueIcon: Icons.umbrella,
-                         falseIcon: Icons.wb_cloudy,
-                         trueColor: Color(0xFF5BC0DE),
-                         falseColor: Color(0xFFB0BEC5),
-                       ),
+                  // Hujan: membaca status string
+                  const BinarySensorCard(
+                    title: 'Hujan',
+                    dbPath: 'sensor/statusHujan',
+                    trueLabel: 'Hujan',
+                    falseLabel: 'Tidak',
+                    trueIcon: Icons.umbrella,
+                    falseIcon: Icons.wb_cloudy,
+                    trueColor: Color(0xFF5BC0DE),
+                    falseColor: Color(0xFFB0BEC5),
+                    isStringComparison: true,   // tambahkan parameter ini
+                    stringTrueValue: "Hujan",   // tambahkan parameter ini
+                  ),
 
                   const RealtimeSensorCard(
-                    path: 'cuaca/kelembaban',
-                    title: 'Kelembapan',
+                    path: 'sensor/kelembaban',
+                    title: 'Kelembaban',
                     icon: Icons.opacity,
                     unit: '%',
                     color: Color(0xFF5CB85C),
@@ -303,6 +306,8 @@ class CuacaPanel extends StatelessWidget {
     final Color trueColor;
     final Color falseColor;
     final double analogThreshold; // jika path mengeluarkan nilai analog, >= threshold => true
+    final bool isStringComparison; // jika true, bandingkan dengan stringTrueValue
+    final String stringTrueValue; // nilai string yang dianggap true
 
     const BinarySensorCard({
       super.key,
@@ -315,6 +320,8 @@ class CuacaPanel extends StatelessWidget {
       required this.trueColor,
       required this.falseColor,
       this.analogThreshold = 1.0,
+      this.isStringComparison = false,  // default false
+      this.stringTrueValue = "",        // default empty
     });
 
     @override
@@ -329,23 +336,22 @@ class CuacaPanel extends StatelessWidget {
           if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
             final v = snapshot.data!.snapshot.value;
 
-            // Jika value adalah int 0/1
-            if (v is int) {
+            if (isStringComparison && v is String) {
+              // Jika menggunakan perbandingan string
+              state = (v == stringTrueValue);
+            } else if (v is int) {
               state = (v == 1);
-            } else if (v is String) {
-              // coba parse sebagai int dulu
+            } else if (v is String && !isStringComparison) {
+              // Logika lama untuk nilai numerik
               final i = int.tryParse(v);
               if (i != null) {
                 state = (i == 1);
               } else {
-                // coba parse sebagai double (analog)
                 final d = double.tryParse(v);
                 if (d != null) state = d >= analogThreshold;
               }
             } else if (v is double) {
               state = (v >= analogThreshold);
-            } else if (v is num) {
-              state = (v.toDouble() >= analogThreshold);
             }
           }
 

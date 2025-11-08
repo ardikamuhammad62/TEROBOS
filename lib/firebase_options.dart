@@ -41,41 +41,42 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB3z5kFrcradelywdgluwWvVTvIh4w1X0I',
-    appId: '1:654981212155:web:7cc0b8ffabbe9e87544d5e',
-    messagingSenderId: '654981212155',
-    projectId: 'terobos3',
-    authDomain: 'terobos3.firebaseapp.com',
-    databaseURL: 'https://terobos3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'terobos3.firebasestorage.app',
+    apiKey: 'AIzaSyCC7zG3VO2ccuBZCRyPN1U8iZlgNIiHnXI',
+    appId: '1:189883996833:web:cf00122b429ad9acc26ee0',
+    messagingSenderId: '189883996833',
+    projectId: 'stasiunmini',
+    authDomain: 'stasiunmini.firebaseapp.com',
+    databaseURL: 'https://stasiunmini-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'stasiunmini.firebasestorage.app',
+    measurementId: 'G-5B8EWYW3HX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAZuYKmUYeSrxM2LItvr6x3Lhx8dXTqLCM',
-    appId: '1:654981212155:android:5400527239e67076544d5e',
-    messagingSenderId: '654981212155',
-    projectId: 'terobos3',
-    databaseURL: 'https://terobos3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'terobos3.firebasestorage.app',
+    apiKey: 'AIzaSyDEloF_VgK94Qs2t76Wj3uNiI6L0zibQck',
+    appId: '1:189883996833:android:482ef200ee9d19f9c26ee0',
+    messagingSenderId: '189883996833',
+    projectId: 'stasiunmini',
+    databaseURL: 'https://stasiunmini-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'stasiunmini.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDZwOe0UXIklggVelJUejuF06e9MT8RsH8',
-    appId: '1:654981212155:ios:7e2733ec0b5452ef544d5e',
-    messagingSenderId: '654981212155',
-    projectId: 'terobos3',
-    databaseURL: 'https://terobos3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'terobos3.firebasestorage.app',
+    apiKey: 'AIzaSyBkffL5SMvBk_r3Dka6D9Hy004OpNy32pg',
+    appId: '1:189883996833:ios:7cd8433b70f5a6a9c26ee0',
+    messagingSenderId: '189883996833',
+    projectId: 'stasiunmini',
+    databaseURL: 'https://stasiunmini-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'stasiunmini.firebasestorage.app',
     iosBundleId: 'com.example.terobos',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDZwOe0UXIklggVelJUejuF06e9MT8RsH8',
-    appId: '1:654981212155:ios:7e2733ec0b5452ef544d5e',
-    messagingSenderId: '654981212155',
-    projectId: 'terobos3',
-    databaseURL: 'https://terobos3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'terobos3.firebasestorage.app',
+    apiKey: 'AIzaSyBkffL5SMvBk_r3Dka6D9Hy004OpNy32pg',
+    appId: '1:189883996833:ios:7cd8433b70f5a6a9c26ee0',
+    messagingSenderId: '189883996833',
+    projectId: 'stasiunmini',
+    databaseURL: 'https://stasiunmini-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'stasiunmini.firebasestorage.app',
     iosBundleId: 'com.example.terobos',
   );
 
@@ -88,4 +89,5 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://terobos3-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'terobos3.firebasestorage.app',
   );
+
 }
